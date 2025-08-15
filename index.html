@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>K‑Pop Memory Puzzle</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#ff66aa" />
+  <link rel="icon" href="icons/icon-192.png">
+  <style>
+    :root{
+      --pink:#ff66aa;--bg:#f9f2f7;--card:#ffffff;--shadow:0 6px 16px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:#222}
+    header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;position:sticky;top:0;background:var(--bg);box-shadow:0 2px 12px rgba(0,0,0,.05);z-index:2}
+    h1{font-size:20px;margin:0}
+    .cta{display:flex;gap:8px}
+    button{border:0;background:var(--pink);color:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:var(--shadow);font-weight:700}
+    button.secondary{background:#fff;color:#222}
+    main{max-width:920px;margin:20px auto;padding:0 16px}
+    #hud{display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+    .pill{background:#fff;padding:8px 12px;border-radius:999px;box-shadow:var(--shadow);font-weight:600}
+    #game-board{display:grid;grid-template-columns:repeat(4, minmax(90px,1fr));gap:12px}
+    .card{aspect-ratio:1/1;border-radius:16px;position:relative;transform-style:preserve-3d;transition:transform .25s ease;box-shadow:var(--shadow);}
+    .card-inner{position:absolute;inset:0;border-radius:16px;overflow:hidden}
+    .front,.back{position:absolute;inset:0;backface-visibility:hidden}
+    .front{background:#fff;display:grid;place-items:center}
+    .front img{width:100%;height:100%;object-fit:cover}
+    .back{background:linear-gradient(135deg,#ffd1e6,var(--pink));transform:rotateY(180deg);display:grid;place-items:center;color:#fff;font-weight:800;font-size:22px;letter-spacing:.5px}
+    .flipped{transform:rotateY(180deg)}
+    footer{padding:24px 0;text-align:center;color:#666}
+    @media (min-width:700px){#game-board{grid-template-columns:repeat(6, minmax(100px,1fr));}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎵 K‑Pop Memory Puzzle</h1>
+    <div class="cta">
+      <button id="installBtn" class="secondary">Install App</button>
+      <button id="resetBtn">New Game</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="hud">
+      <div class="pill">⏱️ Time: <span id="time">0.0</span>s</div>
+      <div class="pill">🎯 Matches: <span id="matches">0</span>/12</div>
+      <div class="pill">⭐ Streak: <span id="streak">0</span></div>
+    </div>
+    <section id="game-board" aria-label="Memory board"></section>
+  </main>
+
+  <footer>Installable PWA • Works offline</footer>
+
+  <script src="app.js"></script>
+  <script>
+    // register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+    }
+    // minimal install prompt
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault(); deferredPrompt = e; installBtn.style.display='inline-block';
+    });
+    installBtn.addEventListener('click', async () => {
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice; deferredPrompt = null;
+    });
+  </script>
+</body>
+</html>
